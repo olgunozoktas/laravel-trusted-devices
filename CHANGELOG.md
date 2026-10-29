@@ -5,6 +5,8 @@ All notable changes to `olgunozoktas/laravel-trusted-devices`. The format follow
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-30
+
 ### Added
 
 - "Keep me signed in on this machine?" after a two-factor code: 1, 7 or 30 days (configurable), or "No, ask every
@@ -22,3 +24,6 @@ All notable changes to `olgunozoktas/laravel-trusted-devices`. The format follow
   unless `auto_sign_in_with_authenticate_using` is on.
 - An independent security review before the first release: no way to make or use a trust without a fresh code or for
   another account; its findings on robustness, documentation and tests are fixed (82 tests).
+
+[Unreleased]: https://github.com/olgunozoktas/laravel-trusted-devices/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/olgunozoktas/laravel-trusted-devices/releases/tag/v0.1.0
