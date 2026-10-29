@@ -5,6 +5,10 @@ All notable changes to `olgunozoktas/laravel-trusted-devices`. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The package description says that the automatic sign-in is switched on by the app (it is off by default).
+
 ## [0.1.0] - 2026-10-30
 
 ### Added

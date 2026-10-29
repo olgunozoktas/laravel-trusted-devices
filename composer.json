@@ -1,6 +1,6 @@
 {
     "name": "olgunozoktas/laravel-trusted-devices",
-    "description": "\"Keep me signed in on this machine?\" for Laravel: after a two-factor code, a trusted device skips the code and signs in by itself for the days the user chose. Works with Laravel Fortify.",
+    "description": "\"Keep me signed in on this machine?\" for Laravel and Fortify: after a two-factor code, a trusted device skips the code for the days the user chooses, and can sign them in by itself when you switch that on.",
     "keywords": [
         "laravel",
         "fortify",
