@@ -14,6 +14,13 @@ use Olgun\TrustedDevices\TrustedDevices;
  * Every knob read per request, in both positions (the package rule: no dead
  * knobs). The boot-time knobs are in BootKnobsOffTest and CustomisedTest.
  */
+it('ships with the automatic sign-in and its authenticateUsing opt-in off', function (): void {
+    $shipped = require __DIR__.'/../../config/trusted-devices.php';
+
+    expect($shipped['auto_sign_in'])->toBeFalse()
+        ->and($shipped['auto_sign_in_with_authenticate_using'])->toBeFalse();
+});
+
 it('offers only whole days from 1 to max_days, and the check names the rest', function (): void {
     config()->set('trusted-devices.days', [30, 1, 7, 7, 365, 0, '3']);
 

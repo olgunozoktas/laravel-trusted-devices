@@ -6,6 +6,7 @@ namespace Olgun\TrustedDevices;
 
 use Illuminate\Auth\Events\CurrentDeviceLogout;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
@@ -70,8 +71,19 @@ final class TrustedDevicesServiceProvider extends ServiceProvider
     private function stopAutoSignInOnLogout(): void
     {
         Event::listen([Logout::class, CurrentDeviceLogout::class], static function (Logout|CurrentDeviceLogout $event): void {
-            app(TrustedDevices::class)->signOut(request(), $event->user);
+            self::signOutOnLogout($event->user, $event->guard);
         });
+    }
+
+    /**
+     * A logout of nobody (a guard with no user can fire `Logout` with null,
+     * whatever its docblock says), or of another guard, is not this trust's.
+     */
+    private static function signOutOnLogout(mixed $user, mixed $guard): void
+    {
+        if ($user instanceof Authenticatable && $guard === Settings::guard()) {
+            app(TrustedDevices::class)->signOut(request(), $user);
+        }
     }
 
     /**

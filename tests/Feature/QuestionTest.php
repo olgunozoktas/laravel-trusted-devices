@@ -54,6 +54,14 @@ it('shows the question with the choices while the offer is fresh', function (): 
         ->assertOk()->assertViewIs('trusted-devices::question')->assertViewHas('choices', [1, 7, 30]);
 });
 
+it('tells the page whether the device will sign in by itself', function (bool $autoSignIn): void {
+    config()->set('trusted-devices.auto_sign_in', $autoSignIn);
+    $admin = Machines::admin();
+
+    $this->actingAs($admin)->withSession(offerFor($admin))->get(route('trusted-devices.create'))
+        ->assertViewHas('autoSignIn', $autoSignIn);
+})->with([[true], [false]]);
+
 it('does not show the question without an offer', function (): void {
     $this->actingAs(Machines::admin())->get(route('trusted-devices.create'))->assertRedirect('/home');
 });

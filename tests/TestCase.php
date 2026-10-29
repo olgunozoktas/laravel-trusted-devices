@@ -42,6 +42,8 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('fortify.home', '/home');
         $app['config']->set('fortify.views', true);
         $app['config']->set('trusted-devices.routes.home', '/home');
+        // The shipped default is off (ConfigContractTest pins it); most tests are about the automatic sign-in.
+        $app['config']->set('trusted-devices.auto_sign_in', true);
 
         Gate::define('admin', static fn (User $user): bool => str_ends_with((string) $user->email, '@admin.test'));
     }

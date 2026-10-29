@@ -1,6 +1,6 @@
 {{-- "Keep me signed in on this machine?" — the package's plain page. Replace it
      with your own design: point `trusted-devices.views.question` at your view
-     (it gets $choices and $action), or publish this one
+     (it gets $choices, $action and $autoSignIn), or publish this one
      (--tag=trusted-devices-views). No choice is made for the person. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -12,7 +12,11 @@
 <body>
     <main>
         <h1>{{ __('Keep me signed in on this machine?') }}</h1>
-        <p>{{ __('Until the time ends, this machine does not ask for the code from your authenticator app, and it signs you in by itself. Log out stops the automatic sign-in here.') }}</p>
+        @if ($autoSignIn ?? false)
+            <p>{{ __('Until the time ends, this machine does not ask for the code from your authenticator app, and it signs you in by itself. Log out stops the automatic sign-in here.') }}</p>
+        @else
+            <p>{{ __('Until the time ends, this machine does not ask for the code from your authenticator app. Your password is still asked.') }}</p>
+        @endif
 
         <form method="POST" action="{{ $action }}">
             @csrf

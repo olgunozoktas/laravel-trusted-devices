@@ -6,6 +6,7 @@ namespace Olgun\TrustedDevices\Fortify;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
 use Olgun\TrustedDevices\Support\Settings;
 use Olgun\TrustedDevices\TrustedDevices;
@@ -17,7 +18,9 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * It DECORATES whatever your app bound to `TwoFactorLoginResponse` (the service
  * provider uses the container's `extend()`), so your own response keeps
- * working. A JSON request is never redirected to the question.
+ * working. A JSON request is never redirected to the question; an Inertia
+ * request gets a 409 with X-Inertia-Location; with no question route (the
+ * package's routes off and none of the app's) the app's response answers.
  */
 final readonly class AskAfterChallenge implements TwoFactorLoginResponse
 {
@@ -33,13 +36,27 @@ final readonly class AskAfterChallenge implements TwoFactorLoginResponse
     {
         $user = $request->user(Settings::guard());
 
-        if (! $request->wantsJson()
-            && Settings::fortifyAsksAfterChallenge()
-            && $user instanceof Authenticatable
-            && $this->trustedDevices->offerAfterCode($request, $user)) {
-            return redirect()->route('trusted-devices.create');
+        if (! $user instanceof Authenticatable) {
+            return $this->inner->toResponse($request);
         }
 
-        return $this->inner->toResponse($request);
+        // A code sign-in on a device this person already trusts: it signs in
+        // by itself again (an app whose own login step asked for the code).
+        $this->trustedDevices->resume($request, $user);
+
+        if ($request->wantsJson()
+            || ! Settings::fortifyAsksAfterChallenge()
+            || ! Route::has('trusted-devices.create')
+            || ! $this->trustedDevices->offerAfterCode($request, $user)) {
+            return $this->inner->toResponse($request);
+        }
+
+        $question = route('trusted-devices.create');
+
+        // Inertia follows a 409 with X-Inertia-Location as a full page visit,
+        // so the Blade question is not drawn inside a modal.
+        return $request->headers->has('X-Inertia')
+            ? new Response('', 409, ['X-Inertia-Location' => $question])
+            : redirect()->to($question);
     }
 }

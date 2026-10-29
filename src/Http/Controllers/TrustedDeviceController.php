@@ -47,6 +47,8 @@ final class TrustedDeviceController extends Controller
         return app(ViewFactory::class)->first([Settings::questionView(), 'trusted-devices::question'], [
             'choices' => Settings::days(),
             'action' => route('trusted-devices.store'),
+            // The page says "signs you in by itself" only when it will.
+            'autoSignIn' => Settings::autoSignIn(),
         ]);
     }
 

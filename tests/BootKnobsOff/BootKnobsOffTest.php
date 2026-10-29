@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use Olgun\TrustedDevices\Tests\Support\Machines;
 
 /**
  * `routes.enabled` and `migrations.auto_load` off (their on position is every
@@ -20,4 +22,15 @@ it('registers no route and loads no migration, and the check names both', functi
         ->expectsOutputToContain('The table "trusted_devices" does not exist')
         ->expectsOutputToContain('The route trusted-devices.create is missing')
         ->assertFailed();
+});
+
+it('answers an accepted code with the app\'s own response, never an error, when there is no question route (F6)', function (): void {
+    config()->set('trusted-devices.ability', null);
+    $admin = Machines::admin();
+    $this->mock(TwoFactorAuthenticationProvider::class)->shouldReceive('verify')->andReturn(true);
+
+    $this->post(route('login.store'), ['email' => $admin->email, 'password' => 'password']);
+
+    $this->post(route('two-factor.login.store'), ['code' => '123456'])->assertRedirect('/home');
+    $this->artisan('trusted-devices:check')->expectsOutputToContain('the question is never asked');
 });

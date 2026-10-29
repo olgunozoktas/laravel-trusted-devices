@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Olgun\TrustedDevices\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Queue\SerializesModels;
 use Olgun\TrustedDevices\Models\TrustedDevice;
 
 /**
@@ -12,8 +13,10 @@ use Olgun\TrustedDevices\Models\TrustedDevice;
  * (`AUTO_SIGN_IN`), or a password sign-in on it skipped the code
  * (`CODE_SKIPPED`). Listen to it for your audit log.
  */
-final readonly class TrustedDeviceUsed
+final class TrustedDeviceUsed
 {
+    use SerializesModels;
+
     public const string AUTO_SIGN_IN = 'auto_sign_in';
 
     public const string CODE_SKIPPED = 'code_skipped';

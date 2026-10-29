@@ -28,6 +28,12 @@ final class SettleCommand extends Command
 
     public function handle(TrustedDevices $trustedDevices, TrustedDeviceList $list): int
     {
+        if (! Settings::active()) {
+            $this->components->info('Switched off (or no days offered): no trust is ended while off.');
+
+            return self::SUCCESS;
+        }
+
         $name = config('auth.guards.'.Settings::guard().'.provider');
         $provider = is_string($name) ? Auth::createUserProvider($name) : null;
         $forgotten = 0;

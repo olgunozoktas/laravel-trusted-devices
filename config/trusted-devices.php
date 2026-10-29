@@ -8,8 +8,8 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 |
 | After a person gives a two-factor code, they may trust the device for a
-| number of days. Until those days end, that device skips the code and, unless
-| `auto_sign_in` is off, signs its person in by itself. Log out stops the
+| number of days. Until those days end, that device skips the code and, when
+| `auto_sign_in` is on, signs its person in by itself. Log out stops the
 | automatic sign-in on that device until the next password sign-in.
 |
 | Every key below is read through `Olgun\TrustedDevices\Support\Settings`,
@@ -21,12 +21,14 @@ declare(strict_types=1);
 return [
 
     // Off: no question, no skipped code, no automatic sign-in. Every trust
-    // stops working (rows stay until they expire or are forgotten).
+    // stops working while it is off; the rows stay, and work again when it is
+    // on (unless they expired or no longer fit their person).
     'enabled' => env('TRUSTED_DEVICES_ENABLED', true),
 
     // The choices the question offers, in days, besides "No, ask every time".
     // A value outside 1..max_days is ignored and `trusted-devices:check`
-    // names it. An empty list switches the question off.
+    // names it. An empty list switches the question off, and no trust works
+    // while it is empty (none is ended for it).
     'days' => [1, 7, 30],
 
     // The longest trust any configuration can give.
@@ -40,9 +42,19 @@ return [
     // The authentication guard the trust signs in with.
     'guard' => 'web',
 
-    // Sign the person in by itself when the session has ended. Off: a trusted
-    // device only skips the code; the password is always asked.
-    'auto_sign_in' => true,
+    // Sign the person in by itself when the session has ended. Off (the
+    // default): a trusted device only skips the code; the password is always
+    // asked. On, a trusted device is as strong as a remember-me cookie for its
+    // days: put every sign-in refusal of your app (a ban, a locked account) in
+    // `ability` or an Eligibility subclass, because the automatic sign-in does
+    // not run your login code.
+    'auto_sign_in' => false,
+
+    // While Fortify::authenticateUsing() is set, the automatic sign-in is
+    // refused: that callback can refuse a person (a ban) and the automatic
+    // sign-in cannot ask it. Turn this on only when every such refusal is also
+    // in `ability` or in your Eligibility subclass.
+    'auto_sign_in_with_authenticate_using' => false,
 
     // The columns of the user model a trust is made against. Any of them
     // changing (a new password, a new or removed factor) ends every trust.
@@ -74,7 +86,7 @@ return [
 
     'views' => [
         // Point at your own Blade view to replace the question page; it gets
-        // $choices (list<int>) and $action (the URL to post to).
+        // $choices (list<int>), $action (the URL to post to) and $autoSignIn.
         'question' => 'trusted-devices::question',
     ],
 

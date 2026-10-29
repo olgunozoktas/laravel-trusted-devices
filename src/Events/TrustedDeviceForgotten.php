@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Olgun\TrustedDevices\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Queue\SerializesModels;
 use Olgun\TrustedDevices\Models\TrustedDevice;
 
 /**
@@ -13,8 +14,10 @@ use Olgun\TrustedDevices\Models\TrustedDevice;
  * ability, the factor or the password changed), trusted the same browser again
  * (`REPLACED`), or passed the limit of live trusts (`LIMIT`).
  */
-final readonly class TrustedDeviceForgotten
+final class TrustedDeviceForgotten
 {
+    use SerializesModels;
+
     public const string FORGOTTEN = 'forgotten';
 
     public const string OTHERS = 'others';

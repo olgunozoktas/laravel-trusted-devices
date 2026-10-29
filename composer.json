@@ -13,6 +13,11 @@
     ],
     "type": "library",
     "license": "MIT",
+    "homepage": "https://github.com/olgunozoktas/laravel-trusted-devices",
+    "support": {
+        "issues": "https://github.com/olgunozoktas/laravel-trusted-devices/issues",
+        "source": "https://github.com/olgunozoktas/laravel-trusted-devices"
+    },
     "authors": [
         {
             "name": "Olgun Özoktaş",

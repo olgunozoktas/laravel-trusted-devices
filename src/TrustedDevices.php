@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Laravel\Fortify\Fortify;
 use Olgun\TrustedDevices\Events\TrustedDeviceCreated;
 use Olgun\TrustedDevices\Events\TrustedDeviceForgotten;
 use Olgun\TrustedDevices\Events\TrustedDeviceUsed;
@@ -157,7 +158,7 @@ final readonly class TrustedDevices
      */
     public function signInFrom(Request $request): ?Authenticatable
     {
-        if (! Settings::autoSignIn()) {
+        if (! Settings::autoSignIn() || $this->authenticateUsingRefuses()) {
             return null;
         }
 
@@ -178,6 +179,21 @@ final readonly class TrustedDevices
         event(new TrustedDeviceUsed($user, $device, TrustedDeviceUsed::AUTO_SIGN_IN, $request->ip()));
 
         return $user;
+    }
+
+    /**
+     * A code sign-in on a device that this person already trusts (an app whose
+     * own login step asked for the code): the device signs in by itself again,
+     * as after a password sign-in that skipped the code. No event: nothing was
+     * skipped.
+     */
+    public function resume(Request $request, Authenticatable $user): void
+    {
+        $device = $this->current($request);
+
+        if ($device instanceof TrustedDevice && $device->signed_out_at !== null && $this->stillTrusts($device, $user)) {
+            $device->forceFill(['signed_out_at' => null, 'last_used_at' => Date::now()])->save();
+        }
     }
 
     /**
@@ -259,12 +275,30 @@ final readonly class TrustedDevices
             return true;
         }
 
+        // Switched off (or no days offered): no trust works, and none is ended
+        // for it; they work again when it is on.
+        if (! Settings::active()) {
+            return false;
+        }
+
         if ($device->user_id === $this->key($user)) {
             $this->end($user, $device, TrustedDeviceForgotten::NO_LONGER_FITS);
             $this->cookie->forget();
         }
 
         return false;
+    }
+
+    /**
+     * Fortify::authenticateUsing() can refuse a person (a ban) and the
+     * automatic sign-in cannot ask it, so while it is set the automatic sign-in
+     * is refused, unless the app says every refusal is also in the ability.
+     */
+    private function authenticateUsingRefuses(): bool
+    {
+        return class_exists(Fortify::class)
+            && Fortify::$authenticateUsingCallback !== null
+            && ! Settings::autoSignInWithAuthenticateUsing();
     }
 
     private function userOf(TrustedDevice $device): ?Authenticatable

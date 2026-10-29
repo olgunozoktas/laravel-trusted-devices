@@ -82,7 +82,21 @@ final class Settings
 
     public static function autoSignIn(): bool
     {
-        return (bool) config('trusted-devices.auto_sign_in', true);
+        return (bool) config('trusted-devices.auto_sign_in', false);
+    }
+
+    public static function autoSignInWithAuthenticateUsing(): bool
+    {
+        return (bool) config('trusted-devices.auto_sign_in_with_authenticate_using', false);
+    }
+
+    /**
+     * Is the package switched on, with at least one number of days? While it is
+     * not, no trust works, and none is ended for it.
+     */
+    public static function active(): bool
+    {
+        return self::enabled() && self::days() !== [];
     }
 
     /**
