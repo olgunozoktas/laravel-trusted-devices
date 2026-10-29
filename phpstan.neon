@@ -1,0 +1,13 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - routes
+        - database/migrations
+
+    # `config/` is not analysed: Larastan's "env() outside the config directory"
+    # rule keys off the APP's config path, so a package's own config file trips
+    # it on every line. The file is a plain array literal with no logic.

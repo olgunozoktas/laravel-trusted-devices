@@ -1,0 +1,73 @@
+{
+    "name": "olgunozoktas/laravel-trusted-devices",
+    "description": "\"Keep me signed in on this machine?\" for Laravel: after a two-factor code, a trusted device skips the code and signs in by itself for the days the user chose. Works with Laravel Fortify.",
+    "keywords": [
+        "laravel",
+        "fortify",
+        "two-factor",
+        "2fa",
+        "trusted-devices",
+        "remember-device",
+        "authentication",
+        "security"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Olgun Özoktaş",
+            "email": "olgunozoktas@hotmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "laravel/framework": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/fortify": "^1.30",
+        "laravel/pint": "^1.18",
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
+    },
+    "suggest": {
+        "laravel/fortify": "Asks the question after Fortify's two-factor challenge, and skips the challenge on a trusted device."
+    },
+    "autoload": {
+        "psr-4": {
+            "Olgun\\TrustedDevices\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Olgun\\TrustedDevices\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Olgun\\TrustedDevices\\TrustedDevicesServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "lint": [
+            "@php vendor/bin/pint"
+        ],
+        "test": [
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse --no-progress",
+            "@php vendor/bin/pest"
+        ]
+    }
+}
