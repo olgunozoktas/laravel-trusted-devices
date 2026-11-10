@@ -3,6 +3,15 @@
 Rules for anybody who edits this package (people and agents). What the package does and how to install it:
 [README.md](README.md). The installer's runbook, every knob with its default: `resources/skills/laravel-trusted-devices/SKILL.md`.
 
+backlog-gh-issues: on
+backlog-sync: true
+
+## Backlog
+
+- Each backlog file in `docs/backlog/` gets a GitHub issue (the owner, 2026-11-10: "for our own packagist repos github
+  issue mirror should be open"). The file is the truth; the issue is its public window. Write no local path, no
+  private project name and no private data in a file or an issue: the repository is public.
+
 ## Gates
 
 - `composer test` before every commit: Pint (`--test`), PHPStan at level max, Pest. Never lower the level, add a
